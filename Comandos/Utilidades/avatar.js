@@ -1,11 +1,24 @@
 const { EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
+const MentionUser = require('../../Package/MentionUser');
 
 module.exports = {
     name: 'avatar',
     description: '🖼️ » Mostra o avatar de um usuário.',
     aliases: ['av', 'pfp'],
-    execute(message, args) {
-        const user = message.mentions.users.first() || message.author;
+    async execute(message, args) {
+        const input = args[0] || message.author.id; // Usa o autor da mensagem se não houver argumentos
+        const user = await MentionUser.getUser(message.client, input, message.guild);
+
+        if (!user) {
+            return message.reply('🛑 » Usuário não encontrado.');
+        }
+
+        const member = message.guild.members.cache.get(user.id);
+
+        if (!member) {
+            return message.reply('🛑 » Usuário não está no servidor.');
+        }
+
         const avatarURL = user.displayAvatarURL({ size: 1024, dynamic: true });
 
         const embed = new EmbedBuilder()
