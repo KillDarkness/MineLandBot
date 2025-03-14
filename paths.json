@@ -1,0 +1,6 @@
+{
+  "@event": "./Events",
+  "@handler": "./Handler",
+  "@package": "./Package",
+  "@commands": "./Comandos"
+}
