@@ -43,3 +43,5 @@ module.exports = (client) => {
         }
     });
 };
+
+// "🛑 » Este comando nãp foi ***Encontrrado***."

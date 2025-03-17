@@ -11,7 +11,7 @@ module.exports = {
                 name: config.status.text,
                 type: ActivityType.Custom,
             }],
-            status: 'online', // Status do bot (online, idle, dnd, invisible)
+            status: 'idle', // Status do bot (online, idle, dnd, invisible)
         });
 
         // Exibe a mensagem de "ready"
