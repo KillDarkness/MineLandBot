@@ -12,6 +12,8 @@
   "dependencies": {
     "discord.js": "^14.18.0",
     "dotenv": "^16.4.7",
-    "module-alias": "^2.2.3"
+    "module-alias": "^2.2.3",
+    "riffy": "^1.0.7-rc.2",
+    "riffy-spotify": "^1.0.2"
   }
 }
