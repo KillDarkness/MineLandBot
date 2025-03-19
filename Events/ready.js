@@ -8,10 +8,10 @@ module.exports = {
         // Define o status personalizado
         client.user.setPresence({
             activities: [{
-                name: config.status.text,
-                type: ActivityType.Custom,
+                name: config.atividades.text,
+                type: ActivityType[config.atividades.type],
             }],
-            status: 'idle', // Status do bot (online, idle, dnd, invisible)
+            status: config.statusType, 
         });
 
         // Exibe a mensagem de "ready"
