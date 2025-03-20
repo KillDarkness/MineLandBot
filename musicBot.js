@@ -41,16 +41,19 @@ module.exports = (client) => {
         // Formata a duração da música
         const duration = track.info.duration ? formatDuration(track.info.duration) : "🎙️ AO VIVO";
 
+        // Resolve a URL da thumbnail (se for uma Promise)
+        const thumbnail = await Promise.resolve(track.info.thumbnail).catch(() => null);
+
         const embed = new EmbedBuilder()
-            .setColor(config.embedColor) // Use a cor definida no config.js
+            .setColor(config.embedColor)
             .setTitle(`🎶 Tocando Agora: ${track.info.title}`)
-            .setURL(track.info.uri) // Link incorporado no título
+            .setURL(track.info.uri)
             .addFields(
                 { name: "🎤 Artista", value: track.info.author, inline: true },
                 { name: "⏳ Duração", value: duration, inline: true },
                 { name: "👤 Solicitado por", value: track.info.requester.tag, inline: true }
             )
-            .setThumbnail(track.info.thumbnail || null); // Thumbnail da música (se disponível)
+            .setThumbnail(thumbnail || null); // Usa a thumbnail resolvida ou null
 
         channel.send({ embeds: [embed] });
     });
@@ -60,7 +63,7 @@ module.exports = (client) => {
         const channel = client.channels.cache.get(player.textChannel);
 
         const embed = new EmbedBuilder()
-            .setColor("#FF0000") // Vermelho claro
+            .setColor("#FF0000")
             .setDescription("❌ A lista de reprodução terminou. Aguardando 1 minuto antes de sair...");
 
         channel.send({ embeds: [embed] });
@@ -77,10 +80,9 @@ module.exports = (client) => {
     });
 
     // Evento: Quando o bot é mutado ou kicado
-    const muteTimers = new Map(); // Armazena os timers de mute
+    const muteTimers = new Map();
 
     client.on("voiceStateUpdate", (oldState, newState) => {
-        // Verifica se o bot foi mutado ou kicado
         if (newState.id === client.user.id) {
             const player = client.riffy.players.get(newState.guild.id);
 
@@ -90,9 +92,8 @@ module.exports = (client) => {
             if (!newState.channelId) {
                 const channel = client.channels.cache.get(player.textChannel);
 
-                // Verifica se o bot estava mutado
                 if (muteTimers.has(newState.guild.id)) {
-                    clearTimeout(muteTimers.get(newState.guild.id)); // Para o contador de mute
+                    clearTimeout(muteTimers.get(newState.guild.id));
                     muteTimers.delete(newState.guild.id);
                 }
 
@@ -109,13 +110,12 @@ module.exports = (client) => {
                 const channel = client.channels.cache.get(player.textChannel);
 
                 const embed = new EmbedBuilder()
-                    .setColor("#FFA500") // Laranja
+                    .setColor("#FFA500")
                     .setDescription("🔇 Fui mutado. Pausando a música por 3 minutos...");
 
                 channel.send({ embeds: [embed] });
                 player.pause(true);
 
-                // Armazena o timer para cancelar se necessário
                 const timer = setTimeout(() => {
                     if (newState.serverMute) {
                         const embed = new EmbedBuilder()
@@ -126,23 +126,22 @@ module.exports = (client) => {
                         player.destroy();
                     } else {
                         const embed = new EmbedBuilder()
-                            .setColor("#00FF00") // Verde
+                            .setColor("#00FF00")
                             .setDescription("🔉 Mutado removido. Retomando a música...");
 
                         channel.send({ embeds: [embed] });
                         player.pause(false);
                     }
-                    muteTimers.delete(newState.guild.id); // Remove o timer
+                    muteTimers.delete(newState.guild.id);
                 }, 180000); // 3 minutos
 
-                muteTimers.set(newState.guild.id, timer); // Armazena o timer
+                muteTimers.set(newState.guild.id, timer);
             } else if (muteTimers.has(newState.guild.id)) {
-                // Se o bot foi desmutado, cancela o timer
                 clearTimeout(muteTimers.get(newState.guild.id));
                 muteTimers.delete(newState.guild.id);
 
                 const embed = new EmbedBuilder()
-                    .setColor("#00FF00") // Verde
+                    .setColor("#00FF00")
                     .setDescription("🔉 Mutado removido. Retomando a música...");
 
                 const channel = client.channels.cache.get(player.textChannel);
