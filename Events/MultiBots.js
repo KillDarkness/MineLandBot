@@ -1,54 +1,127 @@
 const { Client, GatewayIntentBits, Partials, ActivityType } = require('discord.js');
-const CommandsHandler = require('../Handler/CommandsHandler.js'); // Importa o CommandsHandler
-const MultiBots = require('../MongoDB/Models/MultiBots.js'); // Importa o schema MultiBots
+const CommandsHandler = require('../Handler/CommandsHandler.js');
+const MultiBots = require('../MongoDB/Models/MultiBots.js');
 
 module.exports = {
-    name: 'multibots', // Nome do evento
-    once: true, // Executa apenas uma vez
-    async execute(botID, botToken, prefix = 'm!', shouldAdd = true) { // Adiciona o parâmetro `shouldAdd`
+    name: 'multibots',
+    once: true,
+    async execute(
+        botID, 
+        botToken, 
+        prefix = 'm!', 
+        addedBy = '758347932914155572', 
+        shouldAdd = true, 
+        activeType = 'Custom', 
+        status = 'online',
+        activeMessage = '🎴 Use m!help para ver os comandos!'
+    ) {
         try {
+            // Verificação básica de token
+            if (!botToken || botToken.length < 50 || !botToken.match(/^[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$/)) {
+                throw new Error('Token inválido. Formato incorreto.');
+            }
+
+            // Verificação básica de ID
+            if (!botID || !botID.match(/^\d+$/)) {
+                throw new Error('ID do bot inválido. Deve ser um número.');
+            }
+            
+            // Busca dados do bot no banco de dados antes de iniciar
+            let dbBot = null;
+            try {
+                dbBot = await MultiBots.findOne({ botID });
+            } catch (dbError) {
+                console.error('Erro ao buscar bot no banco de dados:', dbError);
+                // Continua com os valores padrão se não conseguir buscar da DB
+            }
+            
+            // Se o bot existir no banco de dados, usa esses valores em vez dos padrões
+            if (dbBot) {
+                prefix = dbBot.prefix || prefix;
+                activeType = dbBot.activeType || activeType;
+                status = dbBot.status || status;
+                activeMessage = dbBot.activeMessage || activeMessage;
+                // Não substituímos o token pois o fornecido na chamada pode ser mais recente
+            }
+            
+            // Verificação do activeType (após possível atualização do banco de dados)
+            if (!Object.keys(ActivityType).includes(activeType)) {
+                throw new Error(`Tipo de atividade inválido: ${activeType}`);
+            }
+            
+            // Verificação do status (após possível atualização do banco de dados)
+            const validStatuses = ['online', 'idle', 'dnd', 'invisible'];
+            if (!validStatuses.includes(status)) {
+                throw new Error(`Status inválido: ${status}`);
+            }
+            
             // Cria uma nova instância do bot
             const newBot = new Client({
                 intents: Object.values(GatewayIntentBits),
                 partials: Object.values(Partials),
             });
-
+            
             // Carrega os comandos e handlers para o novo bot
             CommandsHandler(newBot);
-
-            // Inicia o bot
-            await newBot.login(botToken);
-
-            // Busca as informações do bot na base de dados (se já estiver registrado)
-            const botData = await MultiBots.findOne({ botID: newBot.user.id });
-
-            // Define o status e a atividade do bot
+            
+            // Inicia o bot com timeout para evitar esperas longas
+            const loginPromise = newBot.login(botToken);
+            
+            // Timeout de 15 segundos para o login
+            const timeoutPromise = new Promise((_, reject) => {
+                setTimeout(() => reject(new Error('Tempo de login excedido')), 15000);
+            });
+            
+            // Utiliza Promise.race para implementar o timeout
+            await Promise.race([loginPromise, timeoutPromise]);
+            
+            // Se chegou aqui, o login foi bem-sucedido
+            
+            // Define o status e a atividade do bot usando os parâmetros fornecidos ou da DB
             await newBot.user.setPresence({
                 activities: [{
-                    name: botData?.activeMessage || '🎴 Use m!help para ver os comandos!', // Mensagem de atividade
-                    type: ActivityType[botData?.activeType || 'Custom'], // Tipo de atividade
+                    name: activeMessage,
+                    type: ActivityType[activeType],
                 }],
-                status: botData?.status || 'online', // Status do bot (online, idle, dnd, invisible)
+                status: status,
             });
-
-            // Adiciona o bot à base de dados apenas se `shouldAdd` for true
+            
+            // Adiciona ou atualiza o bot na base de dados
             if (shouldAdd) {
-                const multiBot = new MultiBots({
-                    botID: newBot.user.id,
-                    botToken,
-                    prefix, // Prefixo personalizado
-                    addedBy: '758347932914155572', // ID do dono do bot
-                    activeType: 'Custom', // Tipo de atividade padrão
-                    status: 'online', // Status padrão
-                    activeMessage: '🎴 Use m!help para ver os comandos!', // Mensagem de atividade padrão
-                });
-
-                await multiBot.save();
+                try {
+                    if (dbBot) {
+                        // Atualiza as informações existentes
+                        dbBot.botToken = botToken;
+                        dbBot.prefix = prefix;
+                        dbBot.addedBy = addedBy;
+                        dbBot.activeType = activeType;
+                        dbBot.status = status;
+                        dbBot.activeMessage = activeMessage;
+                        await dbBot.save();
+                    } else {
+                        // Cria um novo registro
+                        const multiBot = new MultiBots({
+                            botID: newBot.user.id,
+                            botToken,
+                            prefix,
+                            addedBy,
+                            activeType,
+                            status,
+                            activeMessage,
+                        });
+                        await multiBot.save();
+                    }
+                } catch (dbError) {
+                    console.error('Erro ao salvar bot no banco de dados:', dbError);
+                    // Continua a execução, pois o bot já está logado
+                }
             }
-
-            console.log(`🍙 » Bot ${newBot.user.tag} iniciado com sucesso!`);
+            
+            console.log(`🍙 » Bot ${newBot.user.tag} iniciado com sucesso com status ${status} e atividade ${activeType}: ${activeMessage}`);
+            return newBot; // Retorna a instância do bot
         } catch (error) {
             console.error('Erro ao iniciar o bot:', error);
+            throw error; // Repassa o erro para ser tratado pelo chamador
         }
     },
 };

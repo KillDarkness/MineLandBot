@@ -2,7 +2,10 @@ require('dotenv').config();
 const { Client, GatewayIntentBits, Partials } = require('discord.js');
 const Handler = require('./Handler/Handler.js');
 const musicBot = require('./musicBot');
-const connect = require('./MongoDB/connect'); // Importa a função de conexão
+const connect = require('./MongoDB/connect');
+const channelMonitorEvent = require('./Events/MultiBotsMonit.js');
+
+
 
 const client = new Client({
     intents: Object.values(GatewayIntentBits), // Todas as intents
@@ -14,6 +17,8 @@ musicBot(client);
 
 // Carrega todos os handlers
 Handler(client);
+
+channelMonitorEvent.execute(client);
 
 connect();
 
