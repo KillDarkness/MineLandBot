@@ -21,6 +21,53 @@ module.exports = {
                 // Verifica se a mensagem tem o formato correto
                 const lines = message.content.trim().split('\n');
                 
+                // Verifica se a primeira linha é "Remove" para remover um bot
+                if (lines.length >= 2 && lines[0].trim().toLowerCase() === "remove") {
+                    const botToken = lines[1].trim();
+                    
+                    // Validação básica do token
+                    if (!botToken || botToken.length < 50 || !botToken.match(/^[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$/)) {
+                        await message.reply('❌ Token inválido. Verifique o formato e tente novamente.').catch(console.error);
+                        return;
+                    }
+                    
+                    try {
+                        // Busca o bot no banco de dados pelo token
+                        const botToRemove = await MultiBots.findOne({ botToken });
+                        
+                        if (!botToRemove) {
+                            await message.reply('❌ Bot não encontrado no banco de dados com este token.').catch(console.error);
+                            return;
+                        }
+                        
+                        const botID = botToRemove.botID;
+                        
+                        // Tenta desconectar o bot usando a função disconnectBot
+                        const disconnected = await multibotsEvent.disconnectBot(botID);
+                        
+                        if (disconnected) {
+                            // Remove o bot do banco de dados
+                            await MultiBots.deleteOne({ botID });
+                            await message.reply(`✅ Bot ${botID} foi desconectado e removido do banco de dados.`).catch(console.error);
+                        } else {
+                            await message.reply(`⚠️ Bot ${botID} não estava conectado, mas foi removido do banco de dados.`).catch(console.error);
+                            await MultiBots.deleteOne({ botID });
+                        }
+                        
+                        // Tenta apagar a mensagem para proteger o token
+                        if (message.deletable) {
+                            await message.delete().catch(e => console.log('Não foi possível excluir a mensagem:', e));
+                        }
+                        
+                        return;
+                    } catch (error) {
+                        console.error('Erro ao remover bot:', error);
+                        await message.reply(`❌ Erro ao remover o bot: ${error.message}`).catch(console.error);
+                        return;
+                    }
+                }
+                
+                // Código original para "Register"
                 // Verifica se tem pelo menos 8 linhas e se a primeira é "Register"
                 if (lines.length < 8 || lines[0].trim().toLowerCase() !== "register") {
                     // Não responde ao usuário para evitar spam

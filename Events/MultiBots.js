@@ -2,6 +2,9 @@ const { Client, GatewayIntentBits, Partials, ActivityType } = require('discord.j
 const CommandsHandler = require('../Handler/CommandsHandler.js');
 const MultiBots = require('../MongoDB/Models/MultiBots.js');
 
+// Armazena as instâncias ativas dos bots
+const activeBots = new Map();
+
 module.exports = {
     name: 'multibots',
     once: true,
@@ -53,6 +56,19 @@ module.exports = {
             const validStatuses = ['online', 'idle', 'dnd', 'invisible'];
             if (!validStatuses.includes(status)) {
                 throw new Error(`Status inválido: ${status}`);
+            }
+            
+            // Verifica se já existe uma instância do bot rodando e a desconecta
+            if (activeBots.has(botID)) {
+                try {
+                    const existingBot = activeBots.get(botID);
+                    await existingBot.destroy();
+                    activeBots.delete(botID);
+                    console.log(`🍙 » Bot ${botID} desconectado para reinicialização`);
+                } catch (destroyError) {
+                    console.error(`Erro ao desconectar o bot ${botID}:`, destroyError);
+                    // Continua a execução para tentar criar uma nova instância
+                }
             }
             
             // Cria uma nova instância do bot
@@ -117,11 +133,36 @@ module.exports = {
                 }
             }
             
-            console.log(`🍙 » Bot ${newBot.user.tag} iniciado com sucesso com status ${status} e atividade ${activeType}: ${activeMessage}`);
+            // Armazena a instância do bot no mapa de bots ativos
+            activeBots.set(botID, newBot);
+            
+            console.log(`🍙 » Bot ${newBot.user.tag} iniciado com sucesso.`);
             return newBot; // Retorna a instância do bot
         } catch (error) {
             console.error('Erro ao iniciar o bot:', error);
             throw error; // Repassa o erro para ser tratado pelo chamador
         }
     },
+    
+    // Nova função para desconectar um bot específico
+    async disconnectBot(botID) {
+        try {
+            // Verifica se o bot está ativo
+            if (!activeBots.has(botID)) {
+                console.log(`🍙 » Bot ${botID} não está conectado`);
+                return false;
+            }
+            
+            // Obtém a instância do bot e a desconecta
+            const bot = activeBots.get(botID);
+            await bot.destroy();
+            activeBots.delete(botID);
+            
+            console.log(`🍙 » Bot ${botID} desconectado com sucesso`);
+            return true;
+        } catch (error) {
+            console.error(`Erro ao desconectar o bot ${botID}:`, error);
+            return false;
+        }
+    }
 };
