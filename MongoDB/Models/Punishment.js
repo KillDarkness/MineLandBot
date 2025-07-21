@@ -11,7 +11,7 @@ const punishmentSchema = new Schema({
     type: String, 
     required: true 
   },
-  targetID: {  // quemrecebeuID (em inglês)
+  targetID: {
     type: String, 
     required: true,
     index: true
@@ -65,6 +65,11 @@ const punishmentSchema = new Schema({
   removeDate: { 
     type: Date, 
     default: null 
+  },
+  
+  rolesID: {
+    type: [String],
+    default: []
   }
 });
 

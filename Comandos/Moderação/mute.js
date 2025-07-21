@@ -6,7 +6,7 @@ module.exports = {
     description: '🔇 » Silencia um usuário no servidor.',
     async execute(message, args) {
         const input = args[0]; // Pega a menção, ID ou tag do usuário
-        const time = args[1] ? parseInt(args[1]) * 1000 : null; // Converte o tempo para milissegundos
+        const timeStr = args[1]; // Pega a string de tempo (ex: '10m', '2h', '1d')
         const reason = args.slice(2).join(' ') || 'Sem motivo fornecido.';
 
         if (!input) {
@@ -25,7 +25,8 @@ module.exports = {
         }
 
         // Realiza a ação de mute usando o Moderation.js
-        const result = await Moderation.mute(message.member, target, reason, time);
+        // Agora passa a string de tempo diretamente, deixando o Moderation.js fazer a conversão
+        const result = await Moderation.mute(message.member, target, reason, timeStr);
         message.reply(result);
     },
 };

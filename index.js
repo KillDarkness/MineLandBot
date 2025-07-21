@@ -5,8 +5,6 @@ const musicBot = require('./musicBot');
 const connect = require('./MongoDB/connect');
 const channelMonitorEvent = require('./Events/MultiBotsMonit.js');
 
-
-
 const client = new Client({
     intents: Object.values(GatewayIntentBits), // Todas as intents
     partials: Object.values(Partials), // Todos os partials

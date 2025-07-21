@@ -11,12 +11,12 @@ module.exports = {
     async execute(
         botID, 
         botToken, 
-        prefix = 'm!', 
+        prefix = 'm.', 
         addedBy = '758347932914155572', 
         shouldAdd = true, 
         activeType = 'Custom', 
         status = 'online',
-        activeMessage = '🎴 Use m!help para ver os comandos!'
+        activeMessage = '🎴 Use m.help para ver os comandos!'
     ) {
         try {
             // Verificação básica de token

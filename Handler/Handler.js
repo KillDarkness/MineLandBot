@@ -5,6 +5,7 @@ const Slash = require('./SlashCommandsHandler.js');
 const EventsHandler = require('./EventsHandler.js');
 const PackageHandler = require('./PackageHandler.js');
 const MongoHandler = require('./MongoHandler.js')
+const FunctionsHandler = require('./FunctionsHandler.js')
 
 module.exports = (client) => {
     // Carrega o handler de comandos
@@ -12,6 +13,7 @@ module.exports = (client) => {
     EventsHandler(client);
     PackageHandler(client);
     MongoHandler(client);
+    FunctionsHandler(client);
     Slash(client)
     require('./AliasHandler');
 

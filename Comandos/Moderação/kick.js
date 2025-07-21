@@ -1,5 +1,5 @@
-const MentionUser = require('../../Package/MentionUser'); // Importa o MentionUser
-const Moderation = require('../../Package/Moderation'); // Importa o Moderation
+const MentionUser = require('../../Package/MentionUser');
+const Moderation = require('../../Package/Moderation'); 
 
 module.exports = {
     name: 'kick',

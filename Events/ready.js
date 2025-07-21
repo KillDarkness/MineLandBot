@@ -1,7 +1,7 @@
-const { ActivityType } = require('discord.js');
+const { ActivityType, Events } = require('discord.js');
 const config = require('../config.js');
-const MultiBots = require('../MongoDB/Models/MultiBots.js'); // Importa o schema MultiBots
-const nomeEvent = require('./MultiBots.js'); // Importa o evento MultiBots
+const MultiBots = require('../MongoDB/Models/MultiBots.js');
+const nomeEvent = require('./MultiBots.js'); 
 
 module.exports = {
     name: 'ready', // Nome do evento
@@ -31,5 +31,7 @@ module.exports = {
                 console.error(`❌ Erro ao iniciar o bot ${bot.botID}:`, error);
             }
         }
+
+        
     },
 };

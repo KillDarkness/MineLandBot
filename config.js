@@ -32,7 +32,7 @@ module.exports = {
 
     atividades: {
         type: 'Custom', // Use um valor válido: Playing, Streaming, Listening, Watching, Custom, Competing
-        text: `🎴 Use m!help para ver os comandos!!`,
+        text: `💚 Use m.help para ver os comandos!!`,
     },
 
     // ------------------------------------------------------

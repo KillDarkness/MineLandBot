@@ -34,7 +34,7 @@ module.exports = async (client) => {
                 Routes.applicationCommands(client.user.id),
                 { body: [] }
             );
-            console.log('[SlashCommands] Todos os comandos globais foram desregistrados');
+            console.log('🔖 » Todos os comandos globais foram desregistrados');
         } catch (error) {
             console.error('Erro ao desregistrar comandos globais:', error);
         }
@@ -47,7 +47,7 @@ module.exports = async (client) => {
                 Routes.applicationGuildCommands(client.user.id, guildId),
                 { body: [] }
             );
-            console.log(`[SlashCommands] Comandos desregistrados para a guild ${guildId}`);
+            console.log(`🔖 » Comandos desregistrados para a guild ${guildId}`);
         } catch (error) {
             console.error(`Erro ao desregistrar comandos da guild ${guildId}:`, error);
         }
@@ -72,14 +72,14 @@ module.exports = async (client) => {
                     Routes.applicationGuildCommands(client.user.id, guildId),
                     { body: commandsArray }
                 );
-                console.log(`[SlashCommands] Registrados ${commandsArray.length} comandos para a guild ${guildId}`);
+                console.log(`🔖 » Registrados ${commandsArray.length} comandos para a guild ${guildId}`);
             } else {
                 // Registra globalmente
                 await client.rest.put(
                     Routes.applicationCommands(client.user.id),
                     { body: commandsArray }
                 );
-                console.log(`[SlashCommands] Registrados ${commandsArray.length} comandos globalmente`);
+                console.log(`🔖 » Registrados ${commandsArray.length} comandos globalmente`);
             }
         } catch (error) {
             console.error('Erro ao registrar slash commands:', error);
