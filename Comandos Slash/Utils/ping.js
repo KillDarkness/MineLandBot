@@ -1,11 +1,10 @@
 const { SlashCommandBuilder } = require('discord.js');
 
 module.exports = {
-    // Informações do comando
     category: 'Utilitários',
     data: new SlashCommandBuilder()
         .setName('ping')
-        .setDescription('Responde com Pong!'),
+        .setDescription('🏓 | Responde com Pong!'),
     
     // Função de execução
     async execute(interaction, client) {
