@@ -10,8 +10,10 @@ const client = new Client({
     partials: Object.values(Partials), // Todos os partials
 });
 
+client.pendingTransfers = new Map(); // Inicializa o mapa para transferências pendentes
+
 // Configuração do Riffy e eventos relacionados à música
-musicBot(client);
+// musicBot(client);
 
 // Carrega todos os handlers
 Handler(client);

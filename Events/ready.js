@@ -2,6 +2,7 @@ const { ActivityType, Events } = require('discord.js');
 const config = require('../config.js');
 const MultiBots = require('../MongoDB/Models/MultiBots.js');
 const nomeEvent = require('./MultiBots.js'); 
+const checkPartnershipRenewals = require('../functions/checkPartnershipRenewals.js');
 
 module.exports = {
     name: 'ready', // Nome do evento
@@ -32,6 +33,8 @@ module.exports = {
             }
         }
 
-        
+        // Run partnership renewal check on startup and then every 24 hours
+        checkPartnershipRenewals(client);
+        setInterval(() => checkPartnershipRenewals(client), 24 * 60 * 60 * 1000); // Every 24 hours
     },
 };

@@ -6,6 +6,7 @@ const MultiBots = require('../MongoDB/Models/MultiBots.js'); // Importa o schema
 module.exports = (client) => {
     // Carrega os comandos
     client.commands = new Map();
+    client.aliases = new Map(); // Adiciona um mapa para aliases
     const commandsPath = path.join(__dirname, '../Comandos');
     const categoryFolders = fs.readdirSync(commandsPath);
 
@@ -17,6 +18,13 @@ module.exports = (client) => {
             const command = require(path.join(categoryPath, file));
             command.category = folder; // Adiciona a categoria ao comando
             client.commands.set(command.name, command);
+
+            // Adiciona aliases
+            if (command.aliases && Array.isArray(command.aliases)) {
+                command.aliases.forEach(alias => {
+                    client.aliases.set(alias, command.name);
+                });
+            }
         }
     }
 
@@ -41,15 +49,15 @@ module.exports = (client) => {
         const args = message.content.slice(prefix.length).trim().split(/ +/);
         const commandName = args.shift().toLowerCase();
 
-        // Busca o comando na lista de comandos
-        const command = client.commands.get(commandName);
+        // Busca o comando pelo nome ou alias
+        const command = client.commands.get(commandName) || client.commands.get(client.aliases.get(commandName));
         if (!command) {
             return message.reply('🛑 » Este comando não foi __Encontrado__.');
         }
 
         // Executa o comando
         try {
-            await command.execute(message, args);
+            await command.execute(message, args, client); // Passa o client para o comando
         } catch (error) {
             console.error(error);
             message.reply('🛑 » Ocorreu um erro ao executar o comando.');

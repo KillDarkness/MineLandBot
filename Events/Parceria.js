@@ -1,10 +1,11 @@
 const { Events, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
+const Partnership = require('../MongoDB/Models/Partnership');
 
 module.exports = {
   name: Events.MessageCreate,
   async execute(message) {
     // Check if the message is in the specified channel
-    const partnershipChannelId = '1351965879499358229';
+    const partnershipChannelId = '1340754593520291901';
     if (message.channel.id !== partnershipChannelId) return;
     
     // Regular expression to detect Discord invite links
@@ -53,26 +54,45 @@ module.exports = {
       );
     
     // Send the embed with buttons
-    await message.reply({
+    const botReply = await message.reply({
       embeds: [partnershipEmbed],
       components: [row]
     });
 
-    // Send a DM to the mentioned representative if there is one
-    if (mentionedUser) {
-      try {
-        // Fetch the guild information using the invite link
-        const invite = await message.client.fetchInvite(serverLink);
-        const guild = invite.guild;
-        const memberCount = guild.memberCount;
+    try {
+      // Fetch the guild information using the invite link
+      const invite = await message.client.fetchInvite(serverLink);
+      const guild = invite.guild;
+      const memberCount = guild.memberCount;
 
-        let renewalMessage;
-        if (memberCount < 1000) {
-          renewalMessage = 'A renovação da matrícula deve ser feita a cada 3 semanas. O servidor deve seguir os termos do Discord.';
-        } else {
-          renewalMessage = 'A renovação da matrícula deve ser feita a cada 2 semanas. O servidor deve ter um cargo de ping ou everyone, e ter uma comunidade ativa.';
-        }
+      // Calculate expiration date (3 weeks from now)
+      const expiresAt = new Date();
+      expiresAt.setDate(expiresAt.getDate() + 21); // 3 weeks
 
+      // Save partnership to database
+      const newPartnership = new Partnership({
+        guildId: guild.id,
+        representativeId: mentionedUser ? mentionedUser.id : null,
+        staffId: message.author.id,
+        partnershipMessageId: message.id,
+        botMessageId: botReply.id,
+        partnershipChannelId: message.channel.id,
+        serverName: guild.name,
+        serverLink: serverLink, // Salva o link do servidor
+        presentationMessage: message.content, // Salva a mensagem de apresentação
+        expiresAt: expiresAt,
+      });
+      await newPartnership.save();
+
+      let renewalMessage;
+      if (memberCount < 1000) {
+        renewalMessage = 'A renovação da parceria deve ser feita a cada 3 semanas. O servidor deve seguir os termos do Discord.';
+      } else {
+        renewalMessage = 'A renovação da parceria deve ser feita a cada 2 semanas. O servidor deve ter um cargo de ping ou everyone, e ter uma comunidade ativa.';
+      }
+
+      // Send a DM to the mentioned representative if there is one
+      if (mentionedUser) {
         // Create the embed for the DM
         const dmEmbed = new EmbedBuilder()
           .setColor('#00FF00')
@@ -102,10 +122,11 @@ module.exports = {
           embeds: [dmEmbed],
           components: [dmButtons]
         });
-      } catch (error) {
-        console.error(`Não foi possível enviar a mensagem direta para ${mentionedUser.tag}:`, error);
-        return;
       }
+    } catch (error) {
+      console.error(`Erro ao processar parceria:`, error);
+      // Optionally, delete the bot's reply if saving to DB fails
+      // await botReply.delete();
     }
   },
 };
