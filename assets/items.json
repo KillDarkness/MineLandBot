@@ -1,0 +1,41 @@
+[
+    {
+        "id": "1",
+        "name": "Caixa Comum",
+        "description": "Uma caixa que pode conter itens comuns.",
+        "type": "item"
+    },
+    {
+        "id": "2",
+        "name": "Caixa Rara",
+        "description": "Uma caixa que pode conter itens raros.",
+        "type": "item"
+    },
+    {
+        "id": "3",
+        "name": "Caixa Lendária",
+        "description": "Uma caixa que pode conter itens lendários.",
+        "type": "item"
+    },
+    {
+        "id": "artifact_2x_daily",
+        "name": "Artefato 2x Daily",
+        "description": "Dobra a recompensa do comando daily.",
+        "type": "artifact",
+        "duration": "7d"
+    },
+    {
+        "id": "artifact_anti_rob",
+        "name": "Artefato Anti-Roubo",
+        "description": "Protege você de ser roubado.",
+        "type": "artifact",
+        "duration": "7d"
+    },
+    {
+        "id": "artifact_work_boost",
+        "name": "Artefato Work Boost",
+        "description": "Reduz o tempo de espera do comando work e dobra os ganhos.",
+        "type": "artifact",
+        "duration": "7d"
+    }
+]

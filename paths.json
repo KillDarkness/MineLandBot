@@ -1,0 +1,7 @@
+{
+  "@event": "./Events",
+  "@handler": "./Handler",
+  "@package": "./Package",
+  "@commands": "./Comandos",
+  "@models": "./MongoDB/Models"
+}
