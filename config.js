@@ -27,7 +27,7 @@ module.exports = {
 
     // ------------------------------------------------------
 
-    linkConfirmationChannelId: "YOUR_CHANNEL_ID",
+
 
     // Status do bot (online, idle, dnd, invisible)
     statusType: "online",

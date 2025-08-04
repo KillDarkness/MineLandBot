@@ -3,15 +3,15 @@ const config = require('../config.js');
 const MultiBots = require('../MongoDB/Models/MultiBots.js');
 const nomeEvent = require('./MultiBots.js'); 
 const checkPartnershipRenewals = require('../functions/checkPartnershipRenewals.js');
-const initializeBackupScheduler = require('./backupScheduler.js');
-const startHttpServer = require('../http/server');
-const { checkArtifacts } = require('../functions/checkArtifacts.js');
+
+
 
 module.exports = {
     name: 'ready', // Nome do evento
     once: true, // Executa apenas uma vez
     async execute(client) {
-        startHttpServer(client); // Inicia o servidor HTTP
+
+
         // Define o status personalizado do bot principal
         client.user.setPresence({
             activities: [{
@@ -40,7 +40,7 @@ module.exports = {
         // Run partnership renewal check on startup and then every 24 hours
         checkPartnershipRenewals(client);
         setInterval(() => checkPartnershipRenewals(client), 24 * 60 * 60 * 1000); // Every 24 hours
-        initializeBackupScheduler(client);
-        checkArtifacts(client);
+
+
     },
 };

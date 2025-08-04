@@ -4,7 +4,8 @@ const Handler = require('./Handler/Handler.js');
 const musicBot = require('./musicBot');
 const connect = require('./MongoDB/connect');
 const channelMonitorEvent = require('./Events/MultiBotsMonit.js');
-const startHttpServer = require('./http/server');
+
+
 
 const client = new Client({
     intents: Object.values(GatewayIntentBits), // Todas as intents

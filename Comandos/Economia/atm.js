@@ -27,9 +27,11 @@ module.exports = {
         const emeraldsFormatted = userEconomy.emeralds.toLocaleString('pt-BR'); // Formata para leitura fácil
 
         if (targetUser.id === message.author.id) {
-            message.reply(`<:emerald:1397996728195481761> » Olá, ${message.author.username}! Atualmente você possui **${emeraldsFormatted}** Esmeraldas em sua conta.`);
+
+            message.reply(`💎 » Olá, ${message.author.username}! Atualmente você possui **${emeraldsFormatted}** Esmeraldas em sua conta.`);
         } else {
-            message.reply(`<:emerald:1397996728195481761> » <@!${targetUser.id}> atualmente possui **${emeraldsFormatted}** Esmeraldas em sua conta.`);
+            message.reply(`💎 » O usuário **${targetUser.username}** possui **${emeraldsFormatted}** Esmeraldas em sua conta.`);
+
         }
     },
 };

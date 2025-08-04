@@ -6,18 +6,7 @@ module.exports = {
     async execute(interaction, client) {
         if (!interaction.isButton()) return;
 
-        if (interaction.customId.startsWith('show_link_code_')) {
-            // interaction.message.reference.messageId é a mensagem original do comando
-            const originalMessage = await interaction.channel.messages.fetch(interaction.message.reference.messageId);
-            const originalAuthorId = originalMessage.author.id;
 
-            if (interaction.user.id !== originalAuthorId) {
-                return interaction.reply({ content: "Apenas o autor do comando pode ver este código.", ephemeral: true });
-            }
-
-            const code = interaction.customId.replace('show_link_code_', '');
-            await interaction.reply({ content: `Seu código de vinculação é: **${code}**`, ephemeral: true });
-        }
 
         if (interaction.customId.startsWith('confirm_transfer_')) {
             // Defer the update immediately to acknowledge the interaction within 3 seconds
